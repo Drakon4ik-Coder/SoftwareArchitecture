@@ -1,0 +1,24 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: pricing-service
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:destore}
+    driverClassName: org.postgresql.Driver
+    username: ${DB_USER:destore}
+    password: ${DB_PASSWORD:destore}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+destore:
+  topics:
+    price-changed: price-changed

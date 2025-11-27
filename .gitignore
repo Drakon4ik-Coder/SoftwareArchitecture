@@ -1,0 +1,7 @@
+.m2repo
+shared-contracts/target
+pricing-service/target
+notification-worker/target
+inventory-service/target
+gateway/target
+finance-gateway-service/target

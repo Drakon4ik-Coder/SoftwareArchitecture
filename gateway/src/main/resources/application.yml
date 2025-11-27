@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      default-filters:
+        - RemoveResponseHeader=Server
+      # Adjust target URIs per service deployment
+      routes: [] # routes are defined via Java config for visibility
