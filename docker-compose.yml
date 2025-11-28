@@ -31,3 +31,84 @@ services:
       POSTGRES_DB: destore
     ports:
       - "5432:5432"
+
+  pricing-service:
+    build:
+      context: .
+      dockerfile: pricing-service/Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: destore
+      DB_USER: destore
+      DB_PASSWORD: destore
+    depends_on:
+      - kafka
+      - postgres
+    ports:
+      - "8081:8081"
+
+  inventory-service:
+    build:
+      context: .
+      dockerfile: inventory-service/Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: destore
+      DB_USER: destore
+      DB_PASSWORD: destore
+    depends_on:
+      - kafka
+      - postgres
+    ports:
+      - "8082:8082"
+
+  finance-gateway-service:
+    build:
+      context: .
+      dockerfile: finance-gateway-service/Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      - kafka
+    ports:
+      - "8083:8083"
+
+  notification-worker:
+    build:
+      context: .
+      dockerfile: notification-worker/Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: destore
+      DB_USER: destore
+      DB_PASSWORD: destore
+    depends_on:
+      - kafka
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      DESTORE_ROUTES_PRICING_HOST: pricing-service
+      DESTORE_ROUTES_PRICING_PORT: 8081
+      DESTORE_ROUTES_INVENTORY_HOST: inventory-service
+      DESTORE_ROUTES_INVENTORY_PORT: 8082
+      DESTORE_ROUTES_FINANCE_HOST: finance-gateway-service
+      DESTORE_ROUTES_FINANCE_PORT: 8083
+      DESTORE_ROUTES_NOTIFICATION_HOST: notification-worker
+      DESTORE_ROUTES_NOTIFICATION_PORT: 8084
+    depends_on:
+      - pricing-service
+      - inventory-service
+      - finance-gateway-service
+      - notification-worker
+    ports:
+      - "8080:8080"

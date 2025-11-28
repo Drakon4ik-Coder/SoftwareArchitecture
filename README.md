@@ -21,6 +21,11 @@ Minimal Java/Spring Boot prototype to showcase the chosen architecture: API Gate
 mvn clean install -DskipTests -Dmaven.repo.local=.m2repo
 ```
 
+## Build & run with Docker
+- Build images: `docker compose build`
+- Run stack (Kafka, Postgres, services, gateway): `docker compose up -d`
+- Services use Kafka at `kafka:9092` and Postgres at `postgres:5432` (default creds `destore/destore`); ports exposed: gateway 8080, pricing 8081, inventory 8082, finance 8083.
+
 ## Run services (one terminal each)
 Start infra: `docker compose up -d` (brings up Kafka/Zookeeper/Postgres). Then run:
 ```bash
@@ -30,6 +35,7 @@ KAFKA_BOOTSTRAP_SERVERS=localhost:9092 mvn -pl finance-gateway-service spring-bo
 KAFKA_BOOTSTRAP_SERVERS=localhost:9092 mvn -pl notification-worker spring-boot:run -Dmaven.repo.local=.m2repo
 mvn -pl gateway spring-boot:run -Dmaven.repo.local=.m2repo
 ```
+In Docker mode, the gateway routes are wired to service names (`pricing-service:8081`, `inventory-service:8082`, `finance-gateway-service:8083`, `notification-worker:8084`), so no localhost connections are used between containers.
 
 Ports: gateway 8080, pricing 8081, inventory 8082, finance 8083, notification 8084 (see `application.yml` and `GatewayRoutesConfig`). Postgres: 5432 (user/password/db all `destore` by default).
 
