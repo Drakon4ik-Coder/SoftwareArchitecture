@@ -34,12 +34,12 @@ public class PricingApplicationService {
     }
 
     @Transactional
-    public Price setPrice(String sku, String currency, BigDecimal amount) {
-        Price price = new Price(sku, currency, amount);
+    public Price setPrice(String sku, String currency, BigDecimal amount, String offerType) {
+        Price price = new Price(sku, currency, amount, offerType);
         Price saved = repo.save(price);
-        PriceChangedEvent event = new PriceChangedEvent(sku, currency, amount);
+        PriceChangedEvent event = new PriceChangedEvent(sku, currency, amount, offerType);
         kafkaTemplate.send(new ProducerRecord<>(priceChangedTopic, sku, event));
-        log.info("Price set for sku={} amount={}", sku, amount);
+        log.info("Price set for sku={} amount={} offer={}", sku, amount, offerType);
         return saved;
     }
 

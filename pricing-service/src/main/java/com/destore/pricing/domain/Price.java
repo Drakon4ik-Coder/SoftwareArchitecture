@@ -13,15 +13,17 @@ public class Price {
     private String sku;
     private String currency;
     private BigDecimal amount;
+    private String offerType;
 
     protected Price() {
         // JPA only
     }
 
-    public Price(String sku, String currency, BigDecimal amount) {
+    public Price(String sku, String currency, BigDecimal amount, String offerType) {
         this.sku = sku;
         this.currency = currency;
         this.amount = amount;
+        this.offerType = offerType;
     }
 
     public String getSku() {
@@ -34,5 +36,9 @@ public class Price {
 
     public BigDecimal getAmount() {
         return amount;
+    }
+
+    public String getOfferType() {
+        return offerType;
     }
 }

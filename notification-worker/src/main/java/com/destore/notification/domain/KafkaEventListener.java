@@ -22,6 +22,6 @@ public class KafkaEventListener {
 
     @KafkaListener(topics = "${destore.topics.price-changed}", groupId = "destore-notification")
     public void onPriceChanged(PriceChangedEvent event) {
-        log.info("Notify caches/reporting: price changed for {} {} {}", event.sku(), event.currency(), event.amount());
+        log.info("Notify caches/reporting: price changed for {} {} {} offer={}", event.sku(), event.currency(), event.amount(), event.offerType());
     }
 }

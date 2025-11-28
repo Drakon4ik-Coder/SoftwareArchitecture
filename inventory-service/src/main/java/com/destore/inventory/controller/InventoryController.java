@@ -31,6 +31,12 @@ public class InventoryController {
         return ResponseEntity.ok(item);
     }
 
+    @PostMapping("/upload")
+    public ResponseEntity<InventoryItem> upload(@Valid @RequestBody UploadStockRequest body) {
+        InventoryItem item = appService.upload(body.sku(), body.quantity(), body.storeId());
+        return ResponseEntity.ok(item);
+    }
+
     @GetMapping("/{sku}")
     public ResponseEntity<InventoryItem> get(@PathVariable String sku) {
         Optional<InventoryItem> item = appService.find(sku);
@@ -38,4 +44,6 @@ public class InventoryController {
     }
 
     public record AdjustStockRequest(@NotNull Integer delta, @NotBlank String storeId) { }
+
+    public record UploadStockRequest(@NotBlank String sku, @NotNull Integer quantity, @NotBlank String storeId) { }
 }

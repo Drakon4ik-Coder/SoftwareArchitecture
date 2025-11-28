@@ -9,12 +9,12 @@ COPY finance-gateway-service/pom.xml finance-gateway-service/
 COPY notification-worker/pom.xml notification-worker/
 COPY loyalty-service/pom.xml loyalty-service/
 COPY reporting-service/pom.xml reporting-service/
-RUN mvn -pl finance-gateway-service -am dependency:go-offline
+RUN mvn -pl loyalty-service -am dependency:go-offline
 
 COPY . .
-RUN mvn -pl finance-gateway-service -am package -DskipTests
+RUN mvn -pl loyalty-service -am package -DskipTests
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
-COPY --from=build /app/finance-gateway-service/target/finance-gateway-service-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/loyalty-service/target/loyalty-service-0.0.1-SNAPSHOT.jar app.jar
 ENTRYPOINT ["java","-jar","/app/app.jar"]

@@ -29,7 +29,7 @@ public class PricingController {
 
     @PostMapping("/{sku}")
     public ResponseEntity<Price> setPrice(@PathVariable String sku, @Valid @RequestBody SetPriceRequest request) {
-        Price saved = appService.setPrice(sku, request.currency(), request.amount());
+        Price saved = appService.setPrice(sku, request.currency(), request.amount(), request.offerType());
         return ResponseEntity.ok(saved);
     }
 
@@ -41,6 +41,7 @@ public class PricingController {
 
     public record SetPriceRequest(
             @NotBlank String currency,
-            @NotNull @Positive BigDecimal amount
+            @NotNull @Positive BigDecimal amount,
+            @NotBlank String offerType
     ) { }
 }

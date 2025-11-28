@@ -7,6 +7,9 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-log:/var/lib/zookeeper/log
 
   kafka:
     image: confluentinc/cp-kafka:7.5.4
@@ -18,9 +21,13 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka-data:/var/lib/kafka/data
 
   postgres:
     image: postgres:15-alpine
@@ -31,6 +38,8 @@ services:
       POSTGRES_DB: destore
     ports:
       - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
 
   pricing-service:
     build:
@@ -91,6 +100,33 @@ services:
     depends_on:
       - kafka
 
+  loyalty-service:
+    build:
+      context: .
+      dockerfile: loyalty-service/Dockerfile
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: destore
+      DB_USER: destore
+      DB_PASSWORD: destore
+    depends_on:
+      - postgres
+    ports:
+      - "8085:8085"
+
+  reporting-service:
+    build:
+      context: .
+      dockerfile: reporting-service/Dockerfile
+    environment:
+      # Reporting stub does not require DB; configure if extended
+      SPRING_PROFILES_ACTIVE: default
+    depends_on:
+      - kafka
+    ports:
+      - "8086:8086"
+
   gateway:
     build:
       context: .
@@ -105,10 +141,22 @@ services:
       DESTORE_ROUTES_FINANCE_PORT: 8083
       DESTORE_ROUTES_NOTIFICATION_HOST: notification-worker
       DESTORE_ROUTES_NOTIFICATION_PORT: 8084
+      DESTORE_ROUTES_LOYALTY_HOST: loyalty-service
+      DESTORE_ROUTES_LOYALTY_PORT: 8085
+      DESTORE_ROUTES_REPORTING_HOST: reporting-service
+      DESTORE_ROUTES_REPORTING_PORT: 8086
     depends_on:
       - pricing-service
       - inventory-service
       - finance-gateway-service
       - notification-worker
+      - loyalty-service
+      - reporting-service
     ports:
       - "8080:8080"
+
+volumes:
+  postgres-data:
+  kafka-data:
+  zookeeper-data:
+  zookeeper-log:

@@ -8,6 +8,8 @@ COPY pricing-service/pom.xml pricing-service/
 COPY inventory-service/pom.xml inventory-service/
 COPY finance-gateway-service/pom.xml finance-gateway-service/
 COPY notification-worker/pom.xml notification-worker/
+COPY loyalty-service/pom.xml loyalty-service/
+COPY reporting-service/pom.xml reporting-service/
 RUN mvn -pl pricing-service -am dependency:go-offline
 
 # Copy full sources and build only the pricing-service module

@@ -23,6 +23,8 @@
         <module>inventory-service</module>
         <module>finance-gateway-service</module>
         <module>notification-worker</module>
+        <module>loyalty-service</module>
+        <module>reporting-service</module>
     </modules>
 
     <properties>

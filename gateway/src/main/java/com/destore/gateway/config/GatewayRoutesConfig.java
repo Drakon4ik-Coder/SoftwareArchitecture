@@ -22,12 +22,18 @@ public class GatewayRoutesConfig {
                         @Value("${destore.routes.finance.host:localhost}") String financeHost,
                         @Value("${destore.routes.finance.port:8083}") int financePort,
                         @Value("${destore.routes.notification.host:localhost}") String notificationHost,
-                        @Value("${destore.routes.notification.port:8084}") int notificationPort) {
+                        @Value("${destore.routes.notification.port:8084}") int notificationPort,
+                        @Value("${destore.routes.loyalty.host:localhost}") String loyaltyHost,
+                        @Value("${destore.routes.loyalty.port:8085}") int loyaltyPort,
+                        @Value("${destore.routes.reporting.host:localhost}") String reportingHost,
+                        @Value("${destore.routes.reporting.port:8086}") int reportingPort) {
         return builder.routes()
                 .route("pricing", r -> r.path("/pricing/**").uri("http://" + pricingHost + ":" + pricingPort))
                 .route("inventory", r -> r.path("/inventory/**").uri("http://" + inventoryHost + ":" + inventoryPort))
                 .route("finance", r -> r.path("/finance/**").uri("http://" + financeHost + ":" + financePort))
                 .route("notification", r -> r.path("/notify/**").uri("http://" + notificationHost + ":" + notificationPort))
+                .route("loyalty", r -> r.path("/loyalty/**").uri("http://" + loyaltyHost + ":" + loyaltyPort))
+                .route("reporting", r -> r.path("/reports/**").uri("http://" + reportingHost + ":" + reportingPort))
                 .build();
     }
 }

@@ -38,12 +38,35 @@ public class InventoryApplicationService {
         item.adjust(delta);
         InventoryItem saved = repo.save(item);
 
+        if (saved.getQuantity() <= 0) {
+            orderFromHq(sku, storeId);
+        }
+
         if (saved.getQuantity() <= LOW_STOCK_THRESHOLD) {
             LowStockEvent event = new LowStockEvent(sku, saved.getQuantity(), storeId);
             kafkaTemplate.send(new ProducerRecord<>(lowStockTopic, sku, event));
             log.info("Low stock for sku={} qty={}", sku, saved.getQuantity());
         }
         return saved;
+    }
+
+    @Transactional
+    public InventoryItem upload(String sku, int quantity, String storeId) {
+        InventoryItem item = repo.findBySku(sku).orElse(new InventoryItem(sku, 0));
+        // Replace quantity with warehouse value
+        int delta = quantity - item.getQuantity();
+        item.adjust(delta);
+        InventoryItem saved = repo.save(item);
+        log.info("Warehouse sync for sku={} store={} qty={}", sku, storeId, saved.getQuantity());
+        if (saved.getQuantity() <= LOW_STOCK_THRESHOLD) {
+            kafkaTemplate.send(new ProducerRecord<>(lowStockTopic, sku, new LowStockEvent(sku, saved.getQuantity(), storeId)));
+        }
+        return saved;
+    }
+
+    private void orderFromHq(String sku, String storeId) {
+        // Prototype stub for HQ reorder integration.
+        log.info("Ordering from HQ for sku={} store={}", sku, storeId);
     }
 
     @Transactional(readOnly = true)
