@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DE-Store Control Panel</title>
+  <style>
+    :root {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+    body { margin: 0; padding: 24px; display: grid; gap: 16px; }
+    h1 { margin: 0 0 8px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+    .card { background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 16px; box-shadow: 0 8px 16px rgba(0,0,0,0.25); }
+    label { display: block; font-size: 12px; color: #94a3b8; margin-top: 8px; }
+    input, select { width: 100%; padding: 8px; margin-top: 4px; border-radius: 8px; border: 1px solid #1f2937; background: #0b1222; color: #e2e8f0; }
+    button { margin-top: 12px; padding: 10px 12px; border: none; border-radius: 8px; background: #22c55e; color: #0b1222; font-weight: 600; cursor: pointer; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    pre { background: #0b1222; padding: 12px; border-radius: 10px; max-height: 240px; overflow: auto; }
+    .row { display: flex; gap: 8px; }
+    .row > * { flex: 1; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>DE-Store Control Panel</h1>
+    <p>Interact with gateway APIs: pricing, inventory, finance, loyalty, reporting.</p>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Pricing</h3>
+      <label>SKU<input id="price-sku" value="sku123"></label>
+      <label>Currency<input id="price-currency" value="GBP"></label>
+      <label>Amount<input id="price-amount" type="number" step="0.01" value="9.99"></label>
+      <label>Offer Type<select id="price-offer"><option>BOGO</option><option>3-for-2</option><option>Free-Delivery</option><option>Standard</option></select></label>
+      <button onclick="setPrice()">Set Price</button>
+      <button onclick="getPrice()">Get Price</button>
+    </div>
+
+    <div class="card">
+      <h3>Inventory</h3>
+      <label>SKU<input id="inv-sku" value="sku123"></label>
+      <label>Delta (negative to decrement)<input id="inv-delta" type="number" value="-1"></label>
+      <label>Store ID<input id="inv-store" value="store-1"></label>
+      <button onclick="adjustStock()">Adjust Stock</button>
+      <div class="row">
+        <label>Upload Qty<input id="inv-upload-qty" type="number" value="10"></label>
+      </div>
+      <button onclick="uploadStock()">Upload Warehouse Qty</button>
+      <button onclick="getStock()">Get Stock</button>
+    </div>
+
+    <div class="card">
+      <h3>Finance Approval</h3>
+      <label>Customer ID<input id="fin-customer" value="c1"></label>
+      <label>Amount<input id="fin-amount" type="number" step="1" value="500"></label>
+      <button onclick="financeApprove()">Request Approval</button>
+    </div>
+
+    <div class="card">
+      <h3>Loyalty</h3>
+      <label>Name<input id="loy-name" value="Alice"></label>
+      <label>Email<input id="loy-email" value="alice@example.com"></label>
+      <label>Tier<select id="loy-tier"><option>silver</option><option>gold</option><option>platinum</option></select></label>
+      <button onclick="loyaltyRegister()">Register</button>
+      <div class="row">
+        <label>Member ID<input id="loy-id" type="number" value="1"></label>
+        <label>Points<input id="loy-points" type="number" value="50"></label>
+      </div>
+      <button onclick="loyaltyAddPoints()">Add Points</button>
+      <button onclick="loyaltyGet()">Get Member</button>
+      <button onclick="loyaltyList()">List Members</button>
+    </div>
+
+    <div class="card">
+      <h3>Reporting</h3>
+      <button onclick="getReport()">Get Summary</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Response</h3>
+    <pre id="output">Ready.</pre>
+  </div>
+
+  <script>
+    const base = '';
+    const out = (data) => document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    const headers = { 'Content-Type': 'application/json' };
+
+    async function setPrice() {
+      const sku = val('price-sku'), currency = val('price-currency'), amount = parseFloat(val('price-amount')), offerType = val('price-offer');
+      out(await post(`/pricing/${encodeURIComponent(sku)}`, { currency, amount, offerType }));
+    }
+    async function getPrice() { out(await get(`/pricing/${encodeURIComponent(val('price-sku'))}`)); }
+
+    async function adjustStock() {
+      const sku = val('inv-sku'), delta = parseInt(val('inv-delta')), storeId = val('inv-store');
+      out(await post(`/inventory/${encodeURIComponent(sku)}/adjust`, { delta, storeId }));
+    }
+    async function uploadStock() {
+      const sku = val('inv-sku'), quantity = parseInt(val('inv-upload-qty')), storeId = val('inv-store');
+      out(await post(`/inventory/upload`, { sku, quantity, storeId }));
+    }
+    async function getStock() { out(await get(`/inventory/${encodeURIComponent(val('inv-sku'))}`)); }
+
+    async function financeApprove() {
+      const customerId = val('fin-customer'), amount = parseFloat(val('fin-amount'));
+      out(await post(`/finance/approve`, { customerId, amount }));
+    }
+
+    async function loyaltyRegister() {
+      const name = val('loy-name'), email = val('loy-email'), tier = val('loy-tier');
+      out(await post(`/loyalty/members`, { name, email, tier }));
+    }
+    async function loyaltyAddPoints() {
+      const id = parseInt(val('loy-id')), points = parseInt(val('loy-points'));
+      out(await post(`/loyalty/members/${id}/points`, { points }));
+    }
+    async function loyaltyGet() { out(await get(`/loyalty/members/${parseInt(val('loy-id'))}`)); }
+    async function loyaltyList() { out(await get(`/loyalty/members`)); }
+
+    async function getReport() { out(await get(`/reports/summary`)); }
+
+    async function get(path) {
+      const res = await fetch(base + path);
+      return res.ok ? res.json() : { error: res.status, body: await res.text() };
+    }
+    async function post(path, body) {
+      const res = await fetch(base + path, { method: 'POST', headers, body: JSON.stringify(body) });
+      return res.ok ? res.json() : { error: res.status, body: await res.text() };
+    }
+    const val = (id) => document.getElementById(id).value;
+  </script>
+</body>
+</html>
