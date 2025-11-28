@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.List;
 
 interface SpringDataInventoryRepo extends JpaRepository<InventoryItem, String> {
     Optional<InventoryItem> findBySku(String sku);
@@ -27,5 +28,10 @@ public class JpaInventoryRepository implements InventoryRepository {
     @Override
     public Optional<InventoryItem> findBySku(String sku) {
         return delegate.findBySku(sku);
+    }
+
+    @Override
+    public List<InventoryItem> findAll() {
+        return delegate.findAll();
     }
 }

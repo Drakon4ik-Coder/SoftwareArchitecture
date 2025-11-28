@@ -1,0 +1,11 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: reporting-service
+services:
+  pricing:
+    base-url: ${PRICING_BASE_URL:http://pricing-service:8081}
+  inventory:
+    base-url: ${INVENTORY_BASE_URL:http://inventory-service:8082}

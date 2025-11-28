@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.List;
 
 @Service
 public class InventoryApplicationService {
@@ -72,5 +73,10 @@ public class InventoryApplicationService {
     @Transactional(readOnly = true)
     public Optional<InventoryItem> find(String sku) {
         return repo.findBySku(sku);
+    }
+
+    @Transactional(readOnly = true)
+    public List<InventoryItem> list() {
+        return repo.findAll();
     }
 }

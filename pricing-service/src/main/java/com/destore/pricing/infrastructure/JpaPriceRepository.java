@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.List;
 
 interface SpringDataPriceRepository extends JpaRepository<Price, String> {
     Optional<Price> findBySku(String sku);
@@ -28,5 +29,10 @@ public class JpaPriceRepository implements PriceRepository {
     @Override
     public Optional<Price> findBySku(String sku) {
         return delegate.findBySku(sku);
+    }
+
+    @Override
+    public List<Price> findAll() {
+        return delegate.findAll();
     }
 }

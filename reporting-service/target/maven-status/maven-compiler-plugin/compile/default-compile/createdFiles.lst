@@ -1,0 +1,5 @@
+com/destore/reporting/application/ReportingService$InventoryDto.class
+com/destore/reporting/ReportingServiceApplication.class
+com/destore/reporting/controller/ReportingController.class
+com/destore/reporting/application/ReportingService.class
+com/destore/reporting/application/ReportingService$PriceDto.class

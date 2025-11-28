@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
+import java.util.List;
 
 @RestController
 @RequestMapping("/inventory")
@@ -41,6 +42,11 @@ public class InventoryController {
     public ResponseEntity<InventoryItem> get(@PathVariable String sku) {
         Optional<InventoryItem> item = appService.find(sku);
         return item.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping
+    public ResponseEntity<List<InventoryItem>> list() {
+        return ResponseEntity.ok(appService.list());
     }
 
     public record AdjustStockRequest(@NotNull Integer delta, @NotBlank String storeId) { }

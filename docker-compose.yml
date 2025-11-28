@@ -120,10 +120,12 @@ services:
       context: .
       dockerfile: reporting-service/Dockerfile
     environment:
-      # Reporting stub does not require DB; configure if extended
-      SPRING_PROFILES_ACTIVE: default
+      PRICING_BASE_URL: http://pricing-service:8081
+      INVENTORY_BASE_URL: http://inventory-service:8082
     depends_on:
       - kafka
+      - pricing-service
+      - inventory-service
     ports:
       - "8086:8086"
 

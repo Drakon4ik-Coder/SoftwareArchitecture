@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.List;
 
 @RestController
 @RequestMapping("/pricing")
@@ -37,6 +38,11 @@ public class PricingController {
     public ResponseEntity<Price> getPrice(@PathVariable String sku) {
         Optional<Price> price = appService.findPrice(sku);
         return price.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Price>> list() {
+        return ResponseEntity.ok(appService.list());
     }
 
     public record SetPriceRequest(

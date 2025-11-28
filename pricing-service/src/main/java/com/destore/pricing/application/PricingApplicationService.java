@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.List;
 
 @Service
 public class PricingApplicationService {
@@ -46,5 +47,10 @@ public class PricingApplicationService {
     @Transactional(readOnly = true)
     public Optional<Price> findPrice(String sku) {
         return repo.findBySku(sku);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Price> list() {
+        return repo.findAll();
     }
 }
